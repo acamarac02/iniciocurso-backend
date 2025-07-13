@@ -1,4 +1,6 @@
 import db from "../config/db"
+import Departamento from "../models/Departamento.model"
+import Especialidad from "../models/Especialidad.model"
 import Profesor from "../models/Profesor.model"
 import Rol from "../models/Rol.model"
 import { obtenerDepartamentoPorNombre } from "./departamento.service"
@@ -78,7 +80,10 @@ export const buscarProfesorPorCorreo = async (correo: string) => {
     return await Profesor.findOne({ where: { correo } });
 };
 
+export const obtenerProfesorPorId = async (id: number) => {
+    return await Profesor.findByPk(id, { include: [Departamento, Especialidad] });
+};
+
 export const eliminarProfesorPorId = async (id: number) => {
     await Profesor.destroy({ where: { id } });
 };
-

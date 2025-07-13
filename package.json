@@ -4,15 +4,20 @@
   "description": "REST API con Node Y Express para aplicación de reparto de inicio de curso",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "nodemon --exec ts-node src/index.ts"
   },
   "author": "Alicia Cámara Casares",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/multer": "^2.0.0",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.0.4",
     "nodemon": "^3.1.10",
+    "supertest": "^7.1.3",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },

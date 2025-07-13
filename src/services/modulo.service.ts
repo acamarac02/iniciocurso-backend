@@ -4,6 +4,9 @@ import Modulo from "../models/Modulo.model";
 import ModuloCurso from "../models/ModuloCurso.model";
 import ModuloEspecialidad from "../models/ModuloEspecialidad.model";
 
+export const obtenerModuloPorId = async (id: number) => {
+    return Modulo.findByPk(id);
+};
 
 export const obtenerOInsertarModulo = async (nombre: string, siglas: string, horas: number) => {
     return await Modulo.findOrCreate({
@@ -50,4 +53,11 @@ export const asociarModuloCurso = async (modulo: Modulo, curso: Curso) => {
             curso_id: curso.id,
         });
     }
+}
+
+export const estaAsociadoCurso = async (moduloId: number, cursoId: number) => {
+    // Verificar que el módulo esté asociado al curso
+    return await ModuloCurso.findOne({
+        where: { modulo_id: moduloId, curso_id: cursoId }
+    });
 }

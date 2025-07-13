@@ -3,6 +3,7 @@ import Modulo from "./Modulo.model";
 import Especialidad from "./Especialidad.model";
 import Curso from "./Curso.model";
 import Profesor from "./Profesor.model";
+import ProcesoAsignacion from "./ProcesoAsignacion.model";
 
 
 @Table({
@@ -34,6 +35,10 @@ class AsignacionModulo extends Model {
     @Column
     profesor_id: number;
 
+    @ForeignKey(() => ProcesoAsignacion)
+    @Column
+    proceso_asignacion_id: number;
+
     @BelongsTo(() => Modulo)
     modulo!: Modulo;
 
@@ -42,6 +47,9 @@ class AsignacionModulo extends Model {
 
     @BelongsTo(() => Profesor)
     profesor!: Profesor;
+
+    @BelongsTo(() => ProcesoAsignacion)
+    procesoAsignacion!: ProcesoAsignacion;
 
 }
 

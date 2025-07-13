@@ -1,11 +1,10 @@
 import { Router } from "express";
 import { upload } from "../middleware/upload.excel";
-import { crearCursosDesdeExcel } from "../handler/cursos";
+import { crearCursosDesdeExcel, obtenerCursosModulos } from "../handler/cursos";
 
 const cursosRouter = Router()
 
-//profesoresRouter.get('/', obtenerProfesores)
-
+cursosRouter.get('/', obtenerCursosModulos)
 
 cursosRouter.post(
     '/subir-excel',

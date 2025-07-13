@@ -1,11 +1,24 @@
 import { MulterRequest } from "../types/express"
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import * as XLSX from 'xlsx'
+import colors from 'colors'
 import { obtenerTurnoPorNombre } from "../services/turno.service";
-import { obtenerOInsertarCurso } from "../services/curso.service";
+import { obtenerCursosModulosDB, obtenerOInsertarCurso } from "../services/curso.service";
 import { obtenerEspecialidadPorNombre } from "../services/especialidad.service";
 import Curso from "../models/Curso.model";
 import { asociarModuloCurso, asociarModuloEspecialidad, obtenerOInsertarModulo } from "../services/modulo.service";
+
+export const obtenerCursosModulos = async  (req : Request, res : Response) => {
+    try {
+        const turnoId = req.query.turnoId ? parseInt(req.query.turnoId as string) : undefined;
+
+        const cursos = await obtenerCursosModulosDB(turnoId);
+        res.status(201).json({data: cursos})
+    } catch (error) {
+        console.log(colors.red.bold(error))
+        res.status(400).json({ error: (error as Error).message });
+    }
+}
 
 export const crearCursosDesdeExcel = async (req: MulterRequest, res: Response) => {
     try {
