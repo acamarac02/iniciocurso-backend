@@ -23,22 +23,22 @@ class Modulo extends Model {
     declare id: number;
 
     @Column({type: DataType.STRING(100), allowNull: false})
-    nombre: string
+    declare nombre: string
 
     @Column({type: DataType.STRING(20), allowNull: false})
-    siglas: string
+    declare siglas: string
 
     @Column({type: DataType.INTEGER, allowNull: false})
-    horas: number
+    declare horas: number
 
     @BelongsToMany(() => Curso, () => ModuloCurso)
-    cursos: Curso[]
+    declare cursos: Curso[]
 
     @BelongsToMany(() => Especialidad, () => ModuloEspecialidad)
-    especialidades: Especialidad[]
+    declare especialidades: Especialidad[]
 
     @HasMany(() => AsignacionModulo)
-    asignaciones!: AsignacionModulo[];
+    declare asignaciones: AsignacionModulo[];
 
 }
 

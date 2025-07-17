@@ -25,31 +25,31 @@ class AsignacionModulo extends Model {
 
     @ForeignKey(() => Modulo)
     @Column
-    modulo_id: number;
+    declare modulo_id: number;
 
     @ForeignKey(() => Curso)
     @Column
-    curso_id: number;
+    declare curso_id: number;
 
     @ForeignKey(() => Profesor)
     @Column
-    profesor_id: number;
+    declare profesor_id: number;
 
     @ForeignKey(() => ProcesoAsignacion)
     @Column
-    proceso_asignacion_id: number;
+    declare proceso_asignacion_id: number;
 
     @BelongsTo(() => Modulo)
-    modulo!: Modulo;
+    declare modulo: Modulo;
 
     @BelongsTo(() => Curso)
-    curso!: Curso;
+    declare curso: Curso;
 
     @BelongsTo(() => Profesor)
-    profesor!: Profesor;
+    declare profesor: Profesor;
 
     @BelongsTo(() => ProcesoAsignacion)
-    procesoAsignacion!: ProcesoAsignacion;
+    declare procesoAsignacion: ProcesoAsignacion;
 
 }
 

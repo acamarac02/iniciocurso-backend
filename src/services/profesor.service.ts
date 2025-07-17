@@ -1,6 +1,9 @@
 import db from "../config/db"
+import AsignacionModulo from "../models/AsignacionModulo.model"
+import Curso from "../models/Curso.model"
 import Departamento from "../models/Departamento.model"
 import Especialidad from "../models/Especialidad.model"
+import Modulo from "../models/Modulo.model"
 import Profesor from "../models/Profesor.model"
 import Rol from "../models/Rol.model"
 import { obtenerDepartamentoPorNombre } from "./departamento.service"
@@ -81,8 +84,32 @@ export const buscarProfesorPorCorreo = async (correo: string) => {
 };
 
 export const obtenerProfesorPorId = async (id: number) => {
-    return await Profesor.findByPk(id, { include: [Departamento, Especialidad] });
+    return await Profesor.findByPk(id, {
+        include: [{ model: Departamento }]
+    });
 };
+
+export const obtenerProfesorConModulos = async (id: number) => {
+    return await Profesor.findByPk(id, {
+        include: [
+            {
+                association: Profesor.associations.asignaciones,
+                include: [
+                    { association: AsignacionModulo.associations.modulo },
+                    { association: AsignacionModulo.associations.curso }
+                ]
+            }
+        ]
+    });
+};
+
+export const obtenerProfesoresDelDepartamento = async (departamentoId: number): Promise<Profesor[]> => {
+    return Profesor.findAll({
+        where: { departamento_id: departamentoId },
+        order: [['orden_eleccion', 'ASC']],
+    });
+};
+
 
 export const eliminarProfesorPorId = async (id: number) => {
     await Profesor.destroy({ where: { id } });

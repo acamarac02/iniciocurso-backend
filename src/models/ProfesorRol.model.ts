@@ -7,11 +7,11 @@ class ProfesorRol extends Model {
 
     @ForeignKey(() => Profesor)
     @Column
-    profesor_id: number;
+    declare profesor_id: number;
 
     @ForeignKey(() => Rol)
     @Column
-    rol_id: number;
+    declare rol_id: number;
 
 }
 

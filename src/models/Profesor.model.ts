@@ -3,7 +3,6 @@ import Departamento from './Departamento.model';
 import Especialidad from './Especialidad.model';
 import ProfesorRol from './ProfesorRol.model';
 import Rol from './Rol.model';
-import Modulo from './Modulo.model';
 import AsignacionModulo from './AsignacionModulo.model';
 
 @Table({tableName: 'profesor', timestamps: false})
@@ -15,33 +14,33 @@ class Profesor extends Model {
     declare id: number;
 
     @Column(DataType.STRING(150))
-    nombre_completo: string
+    declare nombre_completo: string
 
     @Column({type: DataType.STRING(100), unique: true})
-    correo: string
+    declare correo: string
 
-    @Column({type: DataType.INTEGER, allowNull: false})
-    orden_eleccion: number
+    @Column({type: DataType.INTEGER, allowNull: false, unique: 'unique_departamento_orden'})
+    declare orden_eleccion: number
 
     @ForeignKey(() => Departamento)
-    @Column(DataType.INTEGER)
-    departamento_id: number;
+    @Column({type: DataType.INTEGER, unique: 'unique_departamento_orden'})
+    declare departamento_id: number;
 
     @BelongsTo(() => Departamento)
-    departamento: Departamento;
+    declare departamento: Departamento;
 
     @ForeignKey(() => Especialidad)
     @Column(DataType.INTEGER)
-    especialidad_id: number;
+    declare especialidad_id: number;
 
     @BelongsTo(() => Especialidad)
-    especialidad: Especialidad;
+    declare especialidad: Especialidad;
 
     @BelongsToMany(() => Rol, () => ProfesorRol)
-    roles: Rol[]
+    declare roles: Rol[]
 
     @HasMany(() => AsignacionModulo)
-    asignaciones!: AsignacionModulo[];
+    declare asignaciones: AsignacionModulo[];
 
 }
 

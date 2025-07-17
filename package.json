@@ -4,7 +4,7 @@
   "description": "REST API con Node Y Express para aplicación de reparto de inicio de curso",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
     "dev": "nodemon --exec ts-node src/index.ts"
   },
   "author": "Alicia Cámara Casares",

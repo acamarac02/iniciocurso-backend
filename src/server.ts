@@ -25,4 +25,5 @@ server.use('/api/profesores', profesoresRouter)
 server.use('/api/cursos', cursosRouter)
 server.use('/api/asignaciones', asignacionesRouter)
 
+
 export default server

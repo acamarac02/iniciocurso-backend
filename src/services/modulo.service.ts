@@ -5,7 +5,9 @@ import ModuloCurso from "../models/ModuloCurso.model";
 import ModuloEspecialidad from "../models/ModuloEspecialidad.model";
 
 export const obtenerModuloPorId = async (id: number) => {
-    return Modulo.findByPk(id);
+    return Modulo.findByPk(id, {
+        include: [ { model: Especialidad } ]
+    });
 };
 
 export const obtenerOInsertarModulo = async (nombre: string, siglas: string, horas: number) => {

@@ -1,23 +1,24 @@
-import { Request, Response} from 'express'
+import { Request, Response } from 'express'
 import { MulterRequest } from '../types/express';
 import * as XLSX from 'xlsx';
 import colors from 'colors'
-import { buscarProfesorPorCorreo, crearProfesorService, eliminarProfesorPorId, obtenerProfesoresDB } from '../services/profesor.service'
+import { buscarProfesorPorCorreo, crearProfesorService, eliminarProfesorPorId, obtenerProfesorConModulos, obtenerProfesoresDB } from '../services/profesor.service'
+import { intercambiarAsignacionesEntreProfesores } from '../services/asignacion.service';
 
-export const crearProfesor = async (req : Request, res : Response) => {
+export const crearProfesor = async (req: Request, res: Response) => {
     try {
         const profesor = await crearProfesorService(req.body)
-        res.status(201).json({data: profesor})
+        res.status(201).json({ data: profesor })
     } catch (error) {
         console.log(colors.red.bold(error))
         res.status(400).json({ error: (error as Error).message });
     }
 }
 
-export const obtenerProfesores = async  (req : Request, res : Response) => {
+export const obtenerProfesores = async (req: Request, res: Response) => {
     try {
         const profesores = await obtenerProfesoresDB()
-        res.status(201).json({data: profesores})
+        res.status(201).json({ data: profesores })
     } catch (error) {
         console.log(colors.red.bold(error))
         res.status(400).json({ error: (error as Error).message });
@@ -91,5 +92,25 @@ export const crearProfesoresDesdeExcel = async (req: MulterRequest, res: Respons
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al procesar el archivo' });
+    }
+};
+
+export const obtenerModulosDelProfesor = async (req: Request, res: Response) => {
+    try {
+        const profesorId = Number(req.params.id);
+
+        const profesor = await obtenerProfesorConModulos(profesorId);
+
+        if (!profesor) {
+            res.status(404).json({ error: 'Profesor no encontrado' });
+            return;
+        }
+
+        //const modulos = profesor.asignaciones.map(a => a.modulo);
+
+        res.json(profesor);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error: 'Error al obtener los módulos del profesor' });
     }
 };

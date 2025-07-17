@@ -12,12 +12,12 @@ class ModuloCurso extends Model {
     @PrimaryKey
     @ForeignKey(() => Modulo)
     @Column
-    modulo_id: number;
+    declare modulo_id: number;
 
     @PrimaryKey
     @ForeignKey(() => Curso)
     @Column
-    curso_id: number;
+    declare curso_id: number;
 
 }
 

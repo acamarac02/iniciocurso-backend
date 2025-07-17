@@ -9,7 +9,7 @@ class Rol extends Model {
     declare id: number;
 
     @Column(DataType.STRING(50))
-    nombre: string
+    declare nombre: string
 
 }
 

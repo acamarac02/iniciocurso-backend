@@ -12,14 +12,14 @@ class Curso extends Model {
     declare id: number;
 
     @Column(DataType.STRING(150))
-    nombre: string
+    declare nombre: string
 
     @Column({type: DataType.STRING(10), unique: true, allowNull: false})
-    siglas: string
+    declare siglas: string
 
     @ForeignKey(() => Turno)
     @Column(DataType.INTEGER)
-    turno_id: number
+    declare turno_id: number
 
     @BelongsTo(() => Turno)
     turno: Turno

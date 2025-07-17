@@ -9,7 +9,7 @@ class Departamento extends Model {
     declare id: number;
 
     @Column(DataType.STRING(100))
-    nombre: string
+    declare nombre: string
 
 }
 

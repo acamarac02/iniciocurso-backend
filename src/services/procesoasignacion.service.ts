@@ -14,6 +14,12 @@ export const esTurnoProfesor = async (profesorId: number, procesoId: number) => 
     const proceso = await ProcesoAsignacion.findByPk(procesoId);
 
     if (!proceso) return false;
-
     return proceso.profesor_turno_id === profesorId;
+};
+
+export const actualizarTurnoProfesor = async (procesoId: number, nuevoProfesorId: number): Promise<void> => {
+    await ProcesoAsignacion.update(
+        { profesor_turno_id: nuevoProfesorId },
+        { where: { id: procesoId } }
+    );
 };
