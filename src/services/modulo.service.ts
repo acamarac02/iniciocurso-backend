@@ -10,6 +10,18 @@ export const obtenerModuloPorId = async (id: number) => {
     });
 };
 
+export const obtenerModuloPorDepartamentoId = async (idDepartamento: number) => {
+    return Modulo.findAll({
+        where: { departamento_id: idDepartamento }
+    });
+};
+
+export const obteneCursosAsociadosModulo = async (idModulo: number) => {
+    return ModuloCurso.findAll({
+        where: { modulo_id: idModulo }
+    });
+};
+
 export const obtenerOInsertarModulo = async (nombre: string, siglas: string, horas: number) => {
     return await Modulo.findOrCreate({
         where: {

@@ -1,9 +1,10 @@
-import { Table, Model, PrimaryKey, AutoIncrement, Column, DataType, BelongsToMany, HasMany } from "sequelize-typescript";
+import { Table, Model, PrimaryKey, AutoIncrement, Column, DataType, BelongsToMany, HasMany, ForeignKey, BelongsTo } from "sequelize-typescript";
 import Curso from "./Curso.model";
 import ModuloCurso from "./ModuloCurso.model";
 import Especialidad from "./Especialidad.model";
 import ModuloEspecialidad from "./ModuloEspecialidad.model";
 import AsignacionModulo from "./AsignacionModulo.model";
+import Departamento from "./Departamento.model";
 
 @Table({
     tableName: 'modulo',
@@ -30,6 +31,13 @@ class Modulo extends Model {
 
     @Column({type: DataType.INTEGER, allowNull: false})
     declare horas: number
+
+    @ForeignKey(() => Departamento)
+    @Column({type: DataType.INTEGER})
+    declare departamento_id: number;
+
+    @BelongsTo(() => Departamento)
+    declare departamento: Departamento;
 
     @BelongsToMany(() => Curso, () => ModuloCurso)
     declare cursos: Curso[]

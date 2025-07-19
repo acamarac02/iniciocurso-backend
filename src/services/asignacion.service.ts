@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import AsignacionModulo from "../models/AsignacionModulo.model";
 import Modulo from "../models/Modulo.model";
 import db from "../config/db";
@@ -13,13 +13,23 @@ export const estaAsignadoModulo = async (moduloId: number, cursoId: number, proc
     return !!asignacion;
 };
 
-export const asignarModuloDB = async (moduloId: number, cursoId: number, profesorId: number, procesoActivoId: number) => {
+export const obtenerAsignacionesCursosModulo = async (cursoIds: number[], moduloId: number, procesoId: number) => {
+    return await AsignacionModulo.findAll({
+        where: {
+            modulo_id: moduloId,
+            curso_id: { [Op.in]: cursoIds },
+            proceso_asignacion_id: procesoId
+        }
+    });
+};
+
+export const asignarModuloDB = async (moduloId, cursoId, profesorId, procesoId, transaction = null) => {
     return await AsignacionModulo.create({
         modulo_id: moduloId,
         curso_id: cursoId,
         profesor_id: profesorId,
-        proceso_asignacion_id: procesoActivoId
-    });
+        proceso_asignacion_id: procesoId
+    }, { transaction });
 };
 
 /**
@@ -59,10 +69,10 @@ export const obtenerModulosNoAsignados = async (procesoId: number) => {
     });
 };
 
-class IntercambioError extends Error {
+class AsignacionError extends Error {
     constructor(message: string) {
         super(message);
-        this.name = 'IntercambioError';
+        this.name = 'AsignacionError';
     }
 }
 
@@ -76,14 +86,14 @@ const verificarAsignacionYProfesor = async (
         transaction,
     });
     if (!asignacion) {
-        throw new IntercambioError(`Las asignaciones no corresponden al profesor indicado`);
+        throw new AsignacionError(`La asignación no corresponde al profesor indicado`);
     }
     return asignacion;
 };
 
 const verificarProcesoAsignacion = (asignacion1: AsignacionModulo, asignacion2: AsignacionModulo) => {
     if (asignacion1.proceso_asignacion_id !== asignacion2.proceso_asignacion_id) {
-        throw new IntercambioError('Las asignaciones no pertenecen al mismo proceso de asignación');
+        throw new AsignacionError('Las asignaciones no pertenecen al mismo proceso de asignación');
     }
 };
 
@@ -92,11 +102,11 @@ const verificarDepartamentos = async (idProfesor1: number, idProfesor2: number) 
     const profesor2 = await obtenerProfesorPorId(idProfesor2);
 
     if (!profesor1 || !profesor2) {
-        throw new IntercambioError('No se pudo encontrar uno o ambos profesores');
+        throw new AsignacionError('No se pudo encontrar uno o ambos profesores');
     }
 
     if (profesor1.departamento_id !== profesor2.departamento_id) {
-        throw new IntercambioError('Los profesores no pertenecen al mismo departamento');
+        throw new AsignacionError('Los profesores no pertenecen al mismo departamento');
     }
 
     return { profesor1, profesor2 };
@@ -123,7 +133,7 @@ const validarHorasDespuesIntercambio = async (
     const horasProfesor2Despues = horasProfesor2Antes - moduloHoras2 + moduloHoras1;
 
     if (horasProfesor1Despues > 21 || horasProfesor2Despues > 21) {
-        throw new IntercambioError('El intercambio supera el límite de 21 horas asignadas para alguno de los profesores.');
+        throw new AsignacionError('El intercambio supera el límite de 21 horas asignadas para alguno de los profesores.');
     }
 };
 
@@ -134,14 +144,14 @@ const verificarProcesoActivoDepartamento = async (
 ) => {
     const procesoActivo = await obtenerProcesoActivoPorDepartamento(departamentoId);
     if (!procesoActivo) {
-        throw new IntercambioError('No existe proceso activo para el departamento de los profesores');
+        throw new AsignacionError('No existe proceso activo para el departamento de los profesores');
     }
 
     if (
         asignacion1.proceso_asignacion_id !== procesoActivo.id ||
         asignacion2.proceso_asignacion_id !== procesoActivo.id
     ) {
-        throw new IntercambioError('Las asignaciones no pertenecen al proceso activo del departamento');
+        throw new AsignacionError('Las asignaciones no pertenecen al proceso activo del departamento');
     }
 
     return procesoActivo.id;
@@ -172,5 +182,32 @@ export const intercambiarAsignacionesEntreProfesores = async (
         // Guardar cambios
         await asignacion1.save({ transaction });
         await asignacion2.save({ transaction });
+    });
+};
+
+export const desasignarModuloDeProfesor = async (
+    idProfesor: number,
+    idAsignacion: number
+): Promise<void> => {
+    await db.transaction(async (transaction) => {
+        // 1. Buscar la asignación
+        const asignacion = await verificarAsignacionYProfesor(idAsignacion, idProfesor, transaction);
+
+        // 2. Obtener el profesor
+        const profesor = await obtenerProfesorPorId(idProfesor);
+
+        // 3. Obtener el proceso activo del departamento
+        const procesoActivo = await obtenerProcesoActivoPorDepartamento(profesor.departamento_id);
+        if (!procesoActivo) {
+            throw new AsignacionError('No existe proceso activo para el departamento');
+        }
+
+        // 4. Validar que la asignación pertenezca al proceso activo
+        if (asignacion.proceso_asignacion_id !== procesoActivo.id) {
+            throw new AsignacionError('La asignación no pertenece al proceso activo del departamento');
+        }
+
+        // 5. Eliminar la asignación
+        await asignacion.destroy({ transaction });
     });
 };

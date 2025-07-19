@@ -2,8 +2,9 @@ import { Request, Response } from 'express'
 import { MulterRequest } from '../types/express';
 import * as XLSX from 'xlsx';
 import colors from 'colors'
-import { buscarProfesorPorCorreo, crearProfesorService, eliminarProfesorPorId, obtenerProfesorConModulos, obtenerProfesoresDB } from '../services/profesor.service'
+import { buscarProfesorPorCorreo, crearProfesorService, eliminarProfesorPorId, obtenerProfesorConModulos, obtenerProfesoresDB, obtenerProfesorPorId } from '../services/profesor.service'
 import { intercambiarAsignacionesEntreProfesores } from '../services/asignacion.service';
+import { obtenerProcesoActivoPorDepartamento } from '../services/procesoasignacion.service';
 
 export const crearProfesor = async (req: Request, res: Response) => {
     try {
@@ -99,16 +100,25 @@ export const obtenerModulosDelProfesor = async (req: Request, res: Response) => 
     try {
         const profesorId = Number(req.params.id);
 
-        const profesor = await obtenerProfesorConModulos(profesorId);
-
+        const profesor = await obtenerProfesorPorId(profesorId);
         if (!profesor) {
             res.status(404).json({ error: 'Profesor no encontrado' });
             return;
         }
 
+        const proceso = await obtenerProcesoActivoPorDepartamento(profesor.departamento_id);
+        if (!proceso) {
+            res.status(404).json({ error: 'No hay un proceso activo en este momento' });
+            return;
+        }
+        
+        const profesorConModulos = await obtenerProfesorConModulos(profesorId, proceso.id);
+
+        
+
         //const modulos = profesor.asignaciones.map(a => a.modulo);
 
-        res.json(profesor);
+        res.json(profesorConModulos);
     } catch (error) {
         console.log(error)
         res.status(500).json({ error: 'Error al obtener los módulos del profesor' });

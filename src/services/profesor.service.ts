@@ -89,11 +89,22 @@ export const obtenerProfesorPorId = async (id: number) => {
     });
 };
 
-export const obtenerProfesorConModulos = async (id: number) => {
+export const obtenerProfesorConMenorTurno = async (idDepartamento: number) : Promise<Profesor> => {
+    return await Profesor.findOne({
+        where: { departamento_id: idDepartamento },
+        order: [['orden_eleccion', 'ASC']]
+    });
+};
+
+export const obtenerProfesorConModulos = async (id: number, procesoId: number) => {
     return await Profesor.findByPk(id, {
         include: [
             {
                 association: Profesor.associations.asignaciones,
+                where: {
+                    proceso_asignacion_id: procesoId
+                },
+                required: false, // Para que funcione aunque no tenga asignaciones en ese proceso
                 include: [
                     { association: AsignacionModulo.associations.modulo },
                     { association: AsignacionModulo.associations.curso }

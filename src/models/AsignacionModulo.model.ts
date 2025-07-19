@@ -12,7 +12,7 @@ import ProcesoAsignacion from "./ProcesoAsignacion.model";
     indexes: [
       {
         unique: true,
-        fields: ['modulo_id', 'curso_id', 'profesor_id']
+        fields: ['modulo_id', 'curso_id', 'proceso_asignacion_id']
       }
     ]
 })

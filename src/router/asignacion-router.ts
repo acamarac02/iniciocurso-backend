@@ -1,19 +1,30 @@
 import { Router } from "express";
-import { asignarModulo, intercambiarModulos } from "../handler/asignaciones";
-import { validarAsignacion, validarIntercambioAsignaciones } from "../middleware/asignacion.validaciones";
+import { asignarModuloRueda, asignarModulosBloque, desasignarModulo, intercambiarModulos } from "../handler/asignaciones";
+import { validarAsignacionRueda, validarAsignacionBloque, validarDesasignacion, validarIntercambioAsignaciones } from "../middleware/asignacion.validaciones";
 import { handleInputErrors } from "../middleware";
 
 const asignacionesRouter = Router()
 
 asignacionesRouter.put(
-    '/intercambiar-modulos', 
+    '/intercambiar-modulos',
     validarIntercambioAsignaciones,
     intercambiarModulos);
 
 asignacionesRouter.post(
-    '/',
-    validarAsignacion,
+    '/rueda',
+    validarAsignacionRueda,
     handleInputErrors,
-    asignarModulo)
+    asignarModuloRueda)
+
+asignacionesRouter.post(
+    '/bloque',
+    validarAsignacionBloque,
+    handleInputErrors,
+    asignarModulosBloque)
+
+asignacionesRouter.delete(
+    '/desasignar',
+    validarDesasignacion,
+    desasignarModulo);
 
 export default asignacionesRouter

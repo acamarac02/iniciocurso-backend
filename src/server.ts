@@ -4,6 +4,7 @@ import profesoresRouter from './router/profesores-router'
 import db from './config/db'
 import cursosRouter from './router/cursos-router'
 import asignacionesRouter from './router/asignacion-router'
+import procesoRouter from './router/proceso-asignacion-router'
 
 async function connectDB() {
     try {
@@ -24,6 +25,7 @@ server.use(express.json())
 server.use('/api/profesores', profesoresRouter)
 server.use('/api/cursos', cursosRouter)
 server.use('/api/asignaciones', asignacionesRouter)
+server.use('/api/proceso-activo', procesoRouter)
 
 
 export default server
