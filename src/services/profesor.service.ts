@@ -1,12 +1,8 @@
 import db from "../config/db"
 import AsignacionModulo from "../models/AsignacionModulo.model"
-import Curso from "../models/Curso.model"
 import Departamento from "../models/Departamento.model"
-import Especialidad from "../models/Especialidad.model"
-import Modulo from "../models/Modulo.model"
 import Profesor from "../models/Profesor.model"
 import Rol from "../models/Rol.model"
-import { obtenerDepartamentoPorNombre } from "./departamento.service"
 import { obtenerEspecialidadPorNombre } from "./especialidad.service"
 import { obtenerRolesPorNombre } from "./rol.service"
 
@@ -14,7 +10,7 @@ interface CrearProfesorInput {
     nombre_completo: string
     correo: string
     orden_eleccion: number
-    departamento: string
+    departamento: number
     especialidad: string
     roles: string[]
 }
@@ -33,15 +29,20 @@ export const obtenerProfesoresDB = async () => {
     })
 }
 
+export const eliminarProfesoresPorDepartamento = async (idDepartamento: number) => {
+    await Profesor.destroy({
+        where: {
+            departamento_id: idDepartamento
+        }
+    });
+};
+
 export const crearProfesorService = async (input: CrearProfesorInput) => {
-    let { departamento, especialidad, roles } = input
+    let { especialidad, roles } = input
 
     const transaction = await db.transaction()
 
     try {
-        const dept = await obtenerDepartamentoPorNombre(departamento)
-        if (!dept) throw new Error(`Departamento "${departamento}" no encontrado`);
-
         const espec = await obtenerEspecialidadPorNombre(especialidad)
         if (!espec) throw new Error(`Especialidad ${especialidad} no encontrada`);
 
@@ -50,7 +51,7 @@ export const crearProfesorService = async (input: CrearProfesorInput) => {
                 nombre_completo: input.nombre_completo,
                 correo: input.correo,
                 orden_eleccion: input.orden_eleccion,
-                departamento_id: dept.id,
+                departamento_id: input.departamento,
                 especialidad_id: espec.id
             },
             { transaction: transaction }
@@ -78,10 +79,6 @@ export const crearProfesorService = async (input: CrearProfesorInput) => {
         throw error;
     }
 }
-
-export const buscarProfesorPorCorreo = async (correo: string) => {
-    return await Profesor.findOne({ where: { correo } });
-};
 
 export const obtenerProfesorPorId = async (id: number) => {
     return await Profesor.findByPk(id, {
@@ -119,9 +116,4 @@ export const obtenerProfesoresDelDepartamento = async (departamentoId: number): 
         where: { departamento_id: departamentoId },
         order: [['orden_eleccion', 'ASC']],
     });
-};
-
-
-export const eliminarProfesorPorId = async (id: number) => {
-    await Profesor.destroy({ where: { id } });
 };

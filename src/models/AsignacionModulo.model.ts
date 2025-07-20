@@ -39,13 +39,22 @@ class AsignacionModulo extends Model {
     @Column
     declare proceso_asignacion_id: number;
 
-    @BelongsTo(() => Modulo)
+    @BelongsTo(() => Modulo, {
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    })
     declare modulo: Modulo;
 
-    @BelongsTo(() => Curso)
+    @BelongsTo(() => Curso, {
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    })
     declare curso: Curso;
 
-    @BelongsTo(() => Profesor)
+    @BelongsTo(() => Profesor, {
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    })
     declare profesor: Profesor;
 
     @BelongsTo(() => ProcesoAsignacion)

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { crearProfesor, crearProfesoresDesdeExcel, obtenerModulosDelProfesor, obtenerProfesores } from "../handler/profesor";
 import { handleInputErrors } from "../middleware";
-import { validarCrearProfesor } from "../middleware/profesor.validaciones";
+import { validarCrearProfesor, validarSubidaExcelProfesores } from "../middleware/profesor.validaciones";
 import { upload } from "../middleware/upload.excel";
 
 const profesoresRouter = Router()
@@ -17,8 +17,9 @@ profesoresRouter.post(
     crearProfesor)
 
 profesoresRouter.post(
-    '/subir-excel',
+    '/subir-excel/:idDepartamento',
     upload.single('excel-profesores'),
+    validarSubidaExcelProfesores,
     crearProfesoresDesdeExcel)
 
 export default profesoresRouter

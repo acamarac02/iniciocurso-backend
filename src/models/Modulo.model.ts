@@ -32,15 +32,11 @@ class Modulo extends Model {
     @Column({type: DataType.INTEGER, allowNull: false})
     declare horas: number
 
-    @ForeignKey(() => Departamento)
-    @Column({type: DataType.INTEGER})
-    declare departamento_id: number;
-
-    @BelongsTo(() => Departamento)
-    declare departamento: Departamento;
-
     @BelongsToMany(() => Curso, () => ModuloCurso)
     declare cursos: Curso[]
+
+    @HasMany(() => ModuloCurso)
+    declare moduloCurso: ModuloCurso[];
 
     @BelongsToMany(() => Especialidad, () => ModuloEspecialidad)
     declare especialidades: Especialidad[]

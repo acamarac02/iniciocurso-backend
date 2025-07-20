@@ -2,9 +2,9 @@ import { Request, Response } from 'express'
 import { MulterRequest } from '../types/express';
 import * as XLSX from 'xlsx';
 import colors from 'colors'
-import { buscarProfesorPorCorreo, crearProfesorService, eliminarProfesorPorId, obtenerProfesorConModulos, obtenerProfesoresDB, obtenerProfesorPorId } from '../services/profesor.service'
-import { intercambiarAsignacionesEntreProfesores } from '../services/asignacion.service';
-import { obtenerProcesoActivoPorDepartamento } from '../services/procesoasignacion.service';
+import { crearProfesorService, eliminarProfesoresPorDepartamento, obtenerProfesorConModulos, obtenerProfesoresDB, obtenerProfesorPorId } from '../services/profesor.service'
+import { finalizarProcesoAsignacion, obtenerProcesoActivoPorDepartamento } from '../services/procesoasignacion.service';
+import { obtenerDepartamentoPorId } from '../services/departamento.service';
 
 export const crearProfesor = async (req: Request, res: Response) => {
     try {
@@ -28,11 +28,18 @@ export const obtenerProfesores = async (req: Request, res: Response) => {
 
 export const crearProfesoresDesdeExcel = async (req: MulterRequest, res: Response) => {
     try {
-        console.log('req.file:', req.file);
-        console.log('req.body:', req.body);
+        const idDepartamento = parseInt(req.params.idDepartamento);
+        const dept = await obtenerDepartamentoPorId(idDepartamento)
+        if (!dept) {
+            res.status(404).json({ error: 'Departamento no encontrado' });
+        }
 
-        if (!req.file) {
-            res.status(400).json({ error: 'Archivo no proporcionado' });
+        // Eliminamos los profesores del departamento
+        await eliminarProfesoresPorDepartamento(idDepartamento);
+
+        // Si el departamento tiene un proceso activo, lo finalizamos porque vamos a eliminar los profesores
+        if (await obtenerProcesoActivoPorDepartamento(idDepartamento)) {
+            await finalizarProcesoAsignacion(idDepartamento);
         }
 
         // Leer el Excel desde el buffer
@@ -62,19 +69,11 @@ export const crearProfesoresDesdeExcel = async (req: MulterRequest, res: Respons
             const roles = admin === true || admin === 'TRUE' ? ['admin', 'profesor'] : ['profesor'];
 
             try {
-                // Buscar profesor existente por correo
-                const profesorExistente = await buscarProfesorPorCorreo(correo);
-                if (profesorExistente) {
-                    // Eliminar el profesor existente
-                    console.log(colors.cyan("Elimina al profesor " + profesorExistente.nombre_completo))
-                    await eliminarProfesorPorId(profesorExistente.id);
-                }
-
                 const profesor = await crearProfesorService({
                     nombre_completo,
                     correo,
                     especialidad,
-                    departamento: 'Informática', // TODO: Cambiar al departamento del admin que sube el fichero
+                    departamento: idDepartamento, // TODO: Cambiar al departamento del admin que sube el fichero
                     orden_eleccion: filaNum - 1,
                     roles,
                 });

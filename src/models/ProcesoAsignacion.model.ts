@@ -39,7 +39,10 @@ class ProcesoAsignacion extends Model {
     @Column(DataType.INTEGER)
     declare profesor_turno_id: number
 
-    @BelongsTo(() => Profesor)
+    @BelongsTo(() => Profesor, {
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
+      })
     declare profesor_turno: Profesor
 
     @Column(DataType.BOOLEAN)

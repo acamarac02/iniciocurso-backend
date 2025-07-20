@@ -22,6 +22,8 @@ export const obtenerCursosModulos = async  (req : Request, res : Response) => {
 
 export const crearCursosDesdeExcel = async (req: MulterRequest, res: Response) => {
     try {
+        const idDepartamento = parseInt(req.params.idDepartamento);
+
         if (!req.file) res.status(400).json({ error: "Archivo no proporcionado" });
 
         const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
@@ -31,7 +33,7 @@ export const crearCursosDesdeExcel = async (req: MulterRequest, res: Response) =
 
         const cursos = XLSX.utils.sheet_to_json(hojaCursos, { defval: "" });
 
-        const { resultados, info } = await procesarCursosDesdeExcel(cursos, workbook);
+        const { resultados, info } = await procesarCursosDesdeExcel(cursos, workbook, idDepartamento);
 
         res.status(200).json({ resultados, info });
 
@@ -41,7 +43,7 @@ export const crearCursosDesdeExcel = async (req: MulterRequest, res: Response) =
     }
 };
 
-const procesarCursosDesdeExcel = async (cursos: any[], workbook: XLSX.WorkBook) => {
+const procesarCursosDesdeExcel = async (cursos: any[], workbook: XLSX.WorkBook, idDepartamento: number) => {
     const info: string[] = [];
     const resultados: any[] = [];
 
@@ -70,7 +72,7 @@ const procesarCursosDesdeExcel = async (cursos: any[], workbook: XLSX.WorkBook) 
             info.push(`Fila ${filaNum} - El curso '${nombre}' (${siglas}, ${turnoNombre}) ya existe`);
         }
 
-        procesarModulosCurso(siglas, workbook, info, cursoDB)
+        procesarModulosCurso(siglas, workbook, info, cursoDB, idDepartamento)
     }
 
     return { resultados, info };
@@ -85,7 +87,7 @@ const extraerDatosCurso = (fila: any) => {
 };
 
 
-const procesarModulosCurso = async (siglasCurso: string, workbook: XLSX.WorkBook, info: string[], cursoDB: Curso) => {
+const procesarModulosCurso = async (siglasCurso: string, workbook: XLSX.WorkBook, info: string[], cursoDB: Curso, idDepartamento: number) => {
     // --- Procesar hoja con módulos ---
     const hojaModulos = workbook.Sheets[siglasCurso];
     if (!hojaModulos) {
@@ -117,6 +119,6 @@ const procesarModulosCurso = async (siglasCurso: string, workbook: XLSX.WorkBook
 
         const [moduloDB, creado] = await obtenerOInsertarModulo(nombreModulo, siglasModulo, horas)
         await asociarModuloEspecialidad(moduloDB, especialidadDB)
-        await asociarModuloCurso(moduloDB, cursoDB)
+        await asociarModuloCurso(moduloDB, cursoDB, idDepartamento);
     }
 }

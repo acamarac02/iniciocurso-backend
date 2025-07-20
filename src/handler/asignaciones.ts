@@ -78,7 +78,6 @@ export const asignarModuloRueda = async (req: Request, res: Response) => {
 
         res.status(201).json({ message: "Módulo asignado con éxito", asignacion });
 
-        // TODO: avanzar el turno al siguiente profesor de ese mismo departamento, es decir, si está el profesor 1, pasar al 2, si está el 2, pasar al 3, etc. Si llego al final, volver al principio. Si se da el caso, habría que validar si todos los profesores superan las 18 horas y todos los modulos están asignados (caso en el que acaba el proceso)
         avanzarTurno(procesoActivo.id, profesor.departamento.id, profesor.id);
     } catch (error) {
         console.log(error)

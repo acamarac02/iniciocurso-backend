@@ -11,9 +11,17 @@ export const obtenerModuloPorId = async (id: number) => {
 };
 
 export const obtenerModuloPorDepartamentoId = async (idDepartamento: number) => {
-    return Modulo.findAll({
-        where: { departamento_id: idDepartamento }
+    const modulos = await Modulo.findAll({
+        include: [
+            {
+                model: ModuloCurso,
+                where: { departamento_id: idDepartamento },
+                required: true
+            }
+        ]
     });
+
+    return modulos;
 };
 
 export const obteneCursosAsociadosModulo = async (idModulo: number) => {
@@ -53,11 +61,12 @@ export const asociarModuloEspecialidad = async (modulo: Modulo, especialidad: Es
     }
 }
 
-export const asociarModuloCurso = async (modulo: Modulo, curso: Curso) => {
+export const asociarModuloCurso = async (modulo: Modulo, curso: Curso, idDepartamento: number) => {
     const yaEstaAsignado = await ModuloCurso.findOne({
         where: {
             modulo_id: modulo.id,
             curso_id: curso.id,
+            departamento_id: idDepartamento
         },
     });
 
@@ -65,6 +74,7 @@ export const asociarModuloCurso = async (modulo: Modulo, curso: Curso) => {
         await ModuloCurso.create({
             modulo_id: modulo.id,
             curso_id: curso.id,
+            departamento_id: idDepartamento
         });
     }
 }
